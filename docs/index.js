@@ -4,24 +4,44 @@ import './box.js';
 import './cup.js';
 import './grid.js';
 
+const grid = g.grid(
+	g.cols, 
+	g.rows, 
+	[ g.exit(LEFT, 0, 0) ], 
+	[ g.cup(0, DOWN, 1, 1), g.cup(1, UP, 0, 1) ], 
+	g.box(1, 0)
+);
 
 addEventListener('load', () => {
-	console.log('hi');
+	//grid.draw();
 });
 
-setTimeout(() => {
-}, 1000);
+let cell_size = 200;
 
+function adjust_canvas() {
+	const w = window.innerWidth;
+	const h = window.innerHeight;
 
-g.exit(DOWN, 0, 0).draw();
+	// allow half a cell for grid margin inside canvas
+	cell_size     = Math.min(w / (g.cols + 1), h / (g.rows + 1), 200);
+	g_canvas.style.left = (w - cell_size * (g.cols + 1)) / 2;
+	g_canvas.style.top  = (h - cell_size * (g.rows + 1)) / 2;
+	g_canvas.width      = cell_size * (g.cols + 1);
+	g_canvas.height     = cell_size * (g.rows + 1);
 
-for (let c = 0; c < g.cols; ++c) {
-	for (let r = 0; r < g.rows; ++r) {
-		for (let size = 0; size < 3; ++size) {
-			g.cup(size, DOWN, c, r).draw();
-//			g.box(c, r).draw();
-		}		
-	}	
+	g.ctx.translate(cell_size / 2, cell_size / 2);
+	g.ctx.scale(cell_size, cell_size);
+	grid.draw();
 }
 
-g.grid().draw();
+adjust_canvas();
+
+window.addEventListener('resize', adjust_canvas);
+
+// Convert mouse event coords to game world coords.
+const canvas_coords = e => {
+	return {
+		x: (e.pageX - g_canvas.style.left) / cell_size,
+		y: (e.pageY - g_canvas.style.top ) / cell_size
+	};
+};

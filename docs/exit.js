@@ -26,11 +26,10 @@ class Exit {
 		ctx.lineCap     = 'round';
 		ctx.strokeStyle = 'orange';
 		ctx.moveTo(0, 0);
-		ctx.lineTo(-0.40, 0);
+		ctx.lineTo(-0.55, 0);
 		ctx.stroke();
 		ctx.restore();
 	}
-
 }
 
 g.exit = (dir, c, r) => {
