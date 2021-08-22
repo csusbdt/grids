@@ -9,6 +9,6 @@ g_canvas.style.position = 'absolute';
 
 window.g = {
 	ctx: g_canvas.getContext('2d', { alpha: true }),
-	cols: 3,
-	rows: 3
+	cols: 2,
+	rows: 5
 };
