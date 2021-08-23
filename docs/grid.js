@@ -1,10 +1,10 @@
 class Grid {
-	constructor(cols, rows, exits, cups, box) {
+	constructor(cols, rows, exits, box, cups) {
 		this.cols  = cols;
 		this.rows  = rows;
 		this.exits = exits;
-		this.cups  = cups;
 		this.box   = box;
+		this.cups  = cups;
 	}
 
 	draw() {
@@ -46,14 +46,14 @@ class Grid {
 			if (this.cups.some(cup => 
 				cup.c === c && 
 				cup.r === r &&
-				cup.dir !== LEFT
+				cup.dir !== RIGHT
 			)) return;
 		} else if (this.box.c === c - 1 && this.box.r === r) {
 			dir = RIGHT;
 			if (this.cups.some(cup => 
 				cup.c === c && 
 				cup.r === r &&
-				cup.dir !== RIGHT
+				cup.dir !== LEFT
 			)) return;
 		} else if (this.box.c === c && this.box.r === r + 1) {
 			dir = UP;
@@ -83,7 +83,7 @@ class Grid {
 			}
 		}
 
-		// determine what to move
+		// move
 		const cohabiters = this.cups.filter(cup => cup.c === this.box.c && cup.r === this.box.r);
 		cohabiters.forEach(cup => {
 			if (cup.dir !== dir || cohabiters.some(other => other.size > cup.size && other.dir != dir)) {
@@ -97,6 +97,6 @@ class Grid {
 	}
 }
 
-g.grid = (cols, rows, exits, cups, box) => {
-	return new Grid(cols, rows, exits, cups, box);
+g.grid = (cols, rows, exits, box, cups) => {
+	return new Grid(cols, rows, exits, box, cups);
 };

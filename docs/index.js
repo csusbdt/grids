@@ -1,20 +1,31 @@
 import './global.js';
+import './grid.js';
 import './exit.js';
 import './box.js';
 import './cup.js';
-import './grid.js';
+
+const n = 0;
+const grids = [
+	[3, 5, 'r', 2, 4, 0, 0, 'l', 0, 2, 1, 'r', 1, 0, 1, 'd', 2, 1, 2]
+];
+const a = grids[n];
+
+g.cols = a[0];
+g.rows = a[1];
+const exits = [ g.exit(a[2], a[3], a[4]) ];
+const box   = g.box(a[5], a[6]);
+const cups = [];
+for (let i = 7; i < a.length; i += 4) {
+	cups.push(g.cup(a[i + 0], a[i + 1], a[i + 2], a[i + 3]));
+}
 
 const grid = g.grid(
 	g.cols, 
 	g.rows, 
-	[ g.exit(LEFT, 0, 0) ], 
-	[ g.cup(0, DOWN, 1, 1), g.cup(1, UP, 0, 1) ], 
-	g.box(1, 1)
+	exits,
+	box,
+	cups 
 );
-
-addEventListener('load', () => {
-	//grid.draw();
-});
 
 let cell_size   = 200;
 let canvas_left = 0;
