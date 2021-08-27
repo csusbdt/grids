@@ -9,9 +9,11 @@ class Grid {
 
 	draw() {
 		const ctx = g.ctx;
+		ctx.save();
+		g.ctx.translate(g.cell_size / 2, g.cell_size);
+		g.ctx.scale(g.cell_size, g.cell_size);
 		ctx.fillStyle = g_canvas.style.backgroundColor;
 		ctx.fillRect(0, 0, this.cols, this.rows);
-		ctx.save();
 		ctx.lineWidth   = .01;
 		ctx.strokeStyle = 'black';
 		ctx.lineCap     = 'round';
@@ -22,10 +24,10 @@ class Grid {
 				ctx.strokeRect(c, r, 1, 1);
 			}
 		}
-		ctx.restore();
 		this.exits.forEach(o => o.draw());
 		this.cups.forEach(o => o.draw());
 		this.box.draw();
+		ctx.restore();
 	}
 
 	cups_at(c, r) {
@@ -93,6 +95,24 @@ class Grid {
 		});
 		this.box.c = c;
 		this.box.r = r;
+
+		// check for exit
+		for (let i = 0; i < this.exits.length; ++i) {
+			const e = this.exits[i];
+			if (e.c === c && e.r === r) {
+				if (this.cups.every(cup => cup.c !== c || cup.r !== r || cup.dir === e.dir)) {
+					if (e.dir === LEFT) {
+						this.box.c -= .8;
+					} else if (e.dir === RIGHT) {
+						this.box.c += .8;
+					} else if (e.dir === UP) {
+						this.box.r -= .8;
+					} else if (e.dir === DOWN) {
+						this.box.r += .8;
+					}
+				}
+			}
+		}
 		this.draw();
 	}
 }
