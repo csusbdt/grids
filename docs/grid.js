@@ -30,15 +30,15 @@ class Grid {
 		ctx.restore();
 	}
 
-	cups_at(c, r) {
-		const cups = [null, null, null];
-		this.cups.forEach(cup => {
-			if (cup.c === c && cup.r === r) {
-				cups[cup.size] = cup;
-			}
-		});
-		return cups;
-	}
+	// cups_at(c, r) {
+	// 	const cups = [null, null, null];
+	// 	this.cups.forEach(cup => {
+	// 		if (cup.c === c && cup.r === r) {
+	// 			cups[cup.size] = cup;
+	// 		}
+	// 	});
+	// 	return cups;
+	// }
 
 	click(c, r) {
 		// check if move is valid
@@ -117,6 +117,9 @@ class Grid {
 	}
 }
 
-g.grid = (cols, rows, exits, box, cups) => {
-	return new Grid(cols, rows, exits, box, cups);
-};
+// g.grid = (cols, rows, exits, box, cups) => {
+// 	return new Grid(cols, rows, exits, box, cups);
+// };
+
+//g.Grid = Grid;
+window.Grid = Grid;

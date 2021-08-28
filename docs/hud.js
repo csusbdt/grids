@@ -3,28 +3,38 @@ g.hud = {};
 g.hud.draw = function() {
 	g.ctx.save();
 
-	g.ctx.translate(g.cell_size / 2, g.cell_size / 2 + 8);
-	g.ctx.scale(g.cell_size / 78, g.cell_size / 78);
-//	g.ctx.fillStyle = g_canvas.style.backgroundColor;
-//	g.ctx.fillRect(0, 0, this.cols, this.rows);
+	g.ctx.beginPath();
 
-	g.ctx.font = '20px Arial, sans-serif';
-	g.ctx.fillText('' + g.state.n, 0, 0);
+	const hc = g.cell_size * 0.5;
+	g.ctx.translate(hc, hc);
+	g.ctx.fillStyle = 'red';
+	g.ctx.moveTo(0, 0);
+	g.ctx.lineTo(hc, -0.3 * hc);
+	g.ctx.lineTo(hc,  0.3 * hc);
+	g.ctx.lineTo(0, 0);
+	g.ctx.fill();
 
+	const x = 2 * hc * (g.cols + 0);
+	g.ctx.moveTo(x, 0);
+	g.ctx.lineTo(x - hc, -0.3 * hc);
+	g.ctx.lineTo(x - hc,  0.3 * hc);
+	g.ctx.lineTo(x, 0);
+	g.ctx.fill();
 
-	g.ctx.font = '28px Arial, sans-serif';
-	g.ctx.fillText('<', 60, 2);
-	g.ctx.fillText('>', 110, 2);
-	g.ctx.fillText('?', 160, 2);
-	g.ctx.fillText('!', 220, 2);
+	g.ctx.arc(x / 2, 0, 0.3 * hc, 0, Math.PI * 2);
+	g.ctx.fill();
 	g.ctx.restore();
 }
 
 g.hud.touch = function(p) {
-	//console.log(p);
-	if (p.y > 60) return false;
-	if (p.x < 90) return false;
-	if (p.x < 132) {
+	if (p.y > g.cell_size * .8) {
+		return false;
+	}
+	const hc = g.cell_size * 0.5;
+	if (p.x < hc) {
+		return false;
+	}
+	if (p.x < 2 * hc) {
 		if (g.state.n === 0) {
 			g.state.n = g.grids.length - 1;
 		} else {
@@ -33,21 +43,22 @@ g.hud.touch = function(p) {
 		g.start();
 		return true;
 	}
-	if (p.x < 178) {
+	if (p.x < hc * (g.cols + 1) - 0.3 * hc) {
+		return false;
+	}
+	if (p.x < hc * (g.cols + 1) + 0.3 * hc) {
+		g.start();
+		return true;
+	}
+	if (p.x < 2 * hc * g.cols) {
+		return false;
+	}
+	if (p.x < 2 * hc * (g.cols + 1) - hc) {
 		if (g.state.n === g.grids.length - 1) {
 			g.state.n = 0;
 		} else {
 			++g.state.n;
 		}
-		g.start();
-		return true;
-	}
-	if (p.x < 230) {
-		console.log("help");
-		return true;
-	}
-	if (p.x < 280) {
-//		console.log("reset");
 		g.start();
 		return true;
 	}
