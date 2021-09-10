@@ -3,29 +3,21 @@ window.LEFT      = 'l';
 window.RIGHT     = 'r';
 window.UP        = 'u';
 window.DOWN      = 'd';
-window.cup_dirs  = [LEFT, RIGHT, UP, DOWN];
-window.max_cup_size = 2;
-//window.cup_sizes = [0, 1, 2];
 
 // run constants
 window.number_of_cups = 0;
-window.cups_d    = [];
-window.cups_s    = [];
-window.cups_c    = [];
-window.cups_r    = [];
-window.paths     = new Map();
-
-// window.cells = [];
-// for (let c = 0; c < cols; ++c) {
-// 	for (let r = 0; r < rows; ++r) {
-// 		cells.push([c, r]);
-// 	}
-// }
+window.cups_d       = [];
+window.cups_s       = [];
+window.cups_start_c = [];
+window.cups_start_r = [];
+window.paths        = new Map();
 
 // run variables
 window.solution  = null;
 window.box_c     = start_c;
 window.box_r     = start_r;
+window.cups_c    = [];
+window.cups_r    = [];
 
 window.get_state = function() {
 	let s = '' + box_c + box_r;
@@ -131,148 +123,6 @@ function move(m) {
 	move_box(m);
 }
 
-function permute_cup_sizes() {
-	while (true) {
-		permute_cup_dirs();
-		for (let i = number_of_cups - 1; i >= 0; --i) {
-			if (++cups_s[i] < 3) {
-				break;
-			} else {
-				cups_s[i] = 0;
-				if (i === 0) return;
-			}
-		}
-	}
-}
-
-function permute_cup_dirs() {
-	while (true) {
-		permute_cup_start();
-		for (let i = number_of_cups - 1; i >= 0; --i) {
-			if (cups_d[i] === LEFT) {
-				cups_d[i] = RIGHT;
-				break;
-			} else if (cups_d[i] === RIGHT) {
-				cups_d[i] = UP;
-				break;
-			} else if (cups_d[i] === UP) {
-				cups_d[i] = DOWN;
-				break;
-			} else {
-				cups_d[i] = LEFT;
-				if (i === 0) return;
-			}
-		}
-	}
-}
-
-// HERE
-
-function permute_cup_start() {
-	cups_c = [];
-	cups_r = [];
-	for (let i = 0; i < number_of_cups; ++i) {
-		const size = cups_s[i];
-		for (let c = 0; c < cols && cups_c.length === i; ++c) {
-			for (let r = 0; r < rows && cups_c.length === i; ++r) {
-				let good_spot = true;
-				for (let j = 0; j < i; ++j) {
-					if (cups_c[j] === c && cups_r[j] === r && cups_s[j] === size) {
-						good_spot = false;
-						break;
-					}
-				}
-				if (good_spot) {
-					cups_c.push(c);
-					cups_r.push(r);
-				}
-			}
-		}
-	}
-	if (cups_c.length < number_of_cups) {
-		// no feasible start position for at least one cup
-		return;
-	}
-	while (true) {
-		run();
-		for (let i = number_of_cups - 1; i >= 0; --i) {
-			if (++cups_c[i] < cols) {
-				break;
-			} else {
-				cups_c[i] = 0;
-				if (i === 0) return;
-			}
-		}
-	}
-}
-
-// function permute_cup_start_c() {
-// 	while (true) {
-// 		permute_cup_start_r();
-// 		for (let i = number_of_cups - 1; i >= 0; --i) {
-// 			if (++cups_c[i] < cols) {
-// 				break;
-// 			} else {
-// 				cups_c[i] = 0;
-// 				if (i === 0) return;
-// 			}
-// 		}
-// 	}
-// }
-
-// function permute_cup_start_r() {
-// 	while (true) {
-// 		run();
-// 		for (let i = number_of_cups - 1; i >= 0; --i) {
-// 			if (++cups_r[i] < rows) {
-// 				break;
-// 			} else {
-// 				cups_r[i] = 0;
-// 				if (i === 0) return;
-// 			}
-// 		}
-// 	}
-// }
-
-function run() {
-	paths.clear();
-	solution = null;
-	cups_c = [];
-	cups_r = [];
-	for (let i = 0; i < cups_s.length; ++i) {
-		const size = cups_s[i];
-		for (let c = 0; c < cols && cups_c.length === i; ++c) {
-			for (let r = 0; r < rows && cups_c.length === i; ++r) {
-				let good_spot = true;
-				for (let j = 0; j < i; ++j) {
-					if (cups_c[j] === c && cups_r[j] === r && cups_s[j] === size) {
-						good_spot = false;
-						break;
-					}
-				}
-				if (good_spot) {
-					cups_c.push(c);
-					cups_r.push(r);
-				}
-			}
-		}
-	}
-	if (cups_c.length < cups_s.length) {
-		// no feasible start position for at least one cup
-		return;
-	}
-	box_c = start_c;
-	box_r = start_r;
-	if (at_goal()) return;
-	const initial_state = get_state();
-	paths.set(initial_state, []);
-	visit(initial_state);
-	if (solution !== null && solution.length >= min_moves) {
-		console.log(initial_state, goal_c, goal_r);
-		console.log(solution);
-	}
-}
-
 function visit(s) {
 //	++visits;
 	const p = paths.get(s);
@@ -300,12 +150,95 @@ function visit(s) {
 	child_states_to_visit.forEach(s => visit(s));
 }
 
+function run() {
+	paths.clear();
+	solution = null;
+	cups_c = start_cups_c.slice();
+	cups_r = start_cups_r.slice();
+	box_c  = start_c;
+	box_r  = start_r;
+	if (at_goal()) return;
+	const initial_state = get_state();
+	paths.set(initial_state, []);
+	visit(initial_state);
+	if (solution !== null && solution.length >= min_moves) {
+		console.log(initial_state, goal_c, goal_r);
+		console.log(solution);
+	}
+}
+
+function permute_cup_start_positions() {
+	const trials = 100;
+	for (let t = 0; t < trials; ++t) {
+		cup_start_c.length = 0;
+		cup_start_r.length = 0;
+		cups_s.forEach(s => {
+			while (true) {
+				const c = Math.floor(Math.random() * COLS);
+				const r = Math.floor(Math.random() * ROWS);
+				let good = true;
+				for (let i = 0; i < cup_start_c.length; ++i) {
+					if (cup_start_c[i] === c && cup_start_r[i] === r && cups_s[i] === s) {
+						good = false;
+						break;
+					}
+				}
+				if (good) {
+					cup_start_c.push(c);
+					cup_start_r.push(r);
+					break;
+				}
+			}
+		});
+		run();
+	}
+}
+
+const cup_size_counts = [null, null, null]; // three sizes
+
+function permute_cup_sizes() {
+	for (let i = 0; i <= number_of_cups; ++i) {
+		cup_size_counts[0] = i;
+		for (let j = 0; j <= number_of_cups - i; ++j) {
+			cup_size_counts[1] = j;
+			cup_size_counts[2] = number_of_cups - i - j;
+			cups_s.length = 0;
+			for (let s = 0; s < 3; ++s) {
+				for (let k = 0; k < cup_size_counts[s]; ++k) {
+					cups_s.push(s);
+				}
+			}
+			permute_cup_start_positions();
+		}
+	}
+}
+
+function permute_cup_dirs() {
+	while (true) {
+		permute_cup_sizes();
+		for (let i = number_of_cups - 1; i >= 0; --i) {
+			if (cups_d[i] === LEFT) {
+				cups_d[i] = RIGHT;
+				break;
+			} else if (cups_d[i] === RIGHT) {
+				cups_d[i] = UP;
+				break;
+			} else if (cups_d[i] === UP) {
+				cups_d[i] = DOWN;
+				break;
+			} else {
+				cups_d[i] = LEFT;
+				if (i === 0) return;
+			}
+		}
+	}
+}
+
 window.addEventListener('load', function() {
 	for (number_of_cups = 0; number_of_cups < max_number_of_cups; ++number_of_cups) {
 		cups_d.push(LEFT);
-		cups_s.push(0);
 		if (number_of_cups >= min_number_of_cups) {
-			permute_cup_sizes();
+			permute_cup_dirs();
 		}
 	}	
 });
