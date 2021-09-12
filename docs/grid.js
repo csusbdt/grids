@@ -40,6 +40,45 @@ class Grid {
 	// 	return cups;
 	// }
 
+	opposite(dir) {
+		if (dir === LEFT ) return RIGHT;
+		if (dir === RIGHT) return LEFT;
+		if (dir === UP   ) return DOWN;
+		if (dir === DOWN ) return UP;
+		throw new Error();
+	}
+
+	can_move(dir) {
+		let dst_c = box_c;
+		let dst_r = box_r;
+		if (dir === LEFT ) --dst_c;
+		if (dir === RIGHT) ++dst_c;
+		if (dir === UP   ) --dst_r;
+		if (dir === DOWN ) ++dst_r;
+	
+		if (dst_c < 0 || dst_c === cols || dst_r < 0 || dst_r === rows) return false;
+	
+		for (let i = 0; i < number_of_cups; ++i) {
+			if (cups_c[i] === dst_c && cups_r[i] === dst_r && cups_d[i] !== opposite(dir)) {
+				return false;
+			}
+		}
+	
+		for (let size = 0; size <= max_cup_size; ++size) {
+			for (let i = 0; i < number_of_cups; ++i) {
+				if (cups_s[i] !== size) continue;
+				if (cups_c[i] !== box_c || cups_r[i] !== box_r) continue;
+				if (cups_d[i] === dir) continue;
+				for (let i = 0; i < number_of_cups; ++i) {
+					if (cups_c[i] !== dst_c || cups_r[i] !== dst_r) continue;
+					if (cups_s[i] <= size) return false;
+				}
+			}
+		}
+		return true;
+	}
+	
+
 	click(c, r) {
 		// check if move is valid
 		let dir = null;
@@ -74,13 +113,18 @@ class Grid {
 		} else {
 			return;
 		}
-		for (let size = 0; size < 3; ++size) {
+
+	
+		for (let size = 0; size <= 3; ++size) {
 			for (let i = 0; i < this.cups.length; ++i) {
-				const cup = this.cups[i];
-				if (cup.size !== size) continue;
-				if (cup.c !== this.box.c || cup.r !== this.box.r) continue;
-				if (this.cups.some(cup => cup.c === c && cup.r === r && cup.size === size)) {
-					return;
+				//const cup = this.cups[i];
+				if (this.cups[i].size !== size) continue;
+				if (this.cups[i].c !== this.box.c) continue;
+				if (this.cups[i].r !== this.box.r) continue;
+				if (this.cups[i].dir === dir) continue;
+				for (let j = 0; j < this.cups.length; ++j) {
+					if (this.cups[j].c !== c || this.cups[j].r !== r) continue;
+					if (this.cups[j].size <= size) return;
 				}
 			}
 		}
